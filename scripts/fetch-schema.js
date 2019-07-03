@@ -9,7 +9,7 @@ const {
 const fs = require("fs");
 
 async function main() {
-  const res = await fetch("https://graphql-pokemon.now.sh/", {
+  const res = await fetch("http://localhost:3001/graphql?", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query: introspectionQuery })

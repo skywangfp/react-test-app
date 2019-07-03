@@ -7,7 +7,7 @@
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
 async function fetchQuery(operation, variables) {
-  const response = await fetch("https://graphql-pokemon.now.sh/", {
+  const response = await fetch("http://localhost:3001/graphql?", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

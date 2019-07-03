@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash d4471a0ea9001ed64d0192f324507b70
+ * @relayHash 87c074d1e6440a80b54607a3297f3f7f
  */
 
 /* eslint-disable */
@@ -9,13 +9,18 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-type Pokemon_pokemon$ref = any;
+type UserRow_user$ref = any;
 export type AppQueryVariables = {||};
 export type AppQueryResponse = {|
-  +pokemons: ?$ReadOnlyArray<?{|
+  +users: ?$ReadOnlyArray<{|
     +id: string,
-    +$fragmentRefs: Pokemon_pokemon$ref,
-  |}>
+    +$fragmentRefs: UserRow_user$ref,
+  |}>,
+  +books: $ReadOnlyArray<{|
+    +id: string,
+    +name: string,
+    +price: number,
+  |}>,
 |};
 export type AppQuery = {|
   variables: AppQueryVariables,
@@ -26,15 +31,20 @@ export type AppQuery = {|
 
 /*
 query AppQuery {
-  pokemons(first: 10) {
+  users(first: 3) {
     id
-    ...Pokemon_pokemon
+    ...UserRow_user
+  }
+  books(name: "1") {
+    id
+    name
+    price
   }
 }
 
-fragment Pokemon_pokemon on Pokemon {
-  number
+fragment UserRow_user on User {
   name
+  birthday
 }
 */
 
@@ -43,8 +53,8 @@ var v0 = [
   {
     "kind": "Literal",
     "name": "first",
-    "value": 10,
-    "type": "Int!"
+    "value": 3,
+    "type": "Int"
   }
 ],
 v1 = {
@@ -53,13 +63,47 @@ v1 = {
   "name": "id",
   "args": null,
   "storageKey": null
+},
+v2 = {
+  "kind": "ScalarField",
+  "alias": null,
+  "name": "name",
+  "args": null,
+  "storageKey": null
+},
+v3 = {
+  "kind": "LinkedField",
+  "alias": null,
+  "name": "books",
+  "storageKey": "books(name:\"1\")",
+  "args": [
+    {
+      "kind": "Literal",
+      "name": "name",
+      "value": "1",
+      "type": "String"
+    }
+  ],
+  "concreteType": "Book",
+  "plural": true,
+  "selections": [
+    v1,
+    v2,
+    {
+      "kind": "ScalarField",
+      "alias": null,
+      "name": "price",
+      "args": null,
+      "storageKey": null
+    }
+  ]
 };
 return {
   "kind": "Request",
   "operationKind": "query",
   "name": "AppQuery",
   "id": null,
-  "text": "query AppQuery {\n  pokemons(first: 10) {\n    id\n    ...Pokemon_pokemon\n  }\n}\n\nfragment Pokemon_pokemon on Pokemon {\n  number\n  name\n}\n",
+  "text": "query AppQuery {\n  users(first: 3) {\n    id\n    ...UserRow_user\n  }\n  books(name: \"1\") {\n    id\n    name\n    price\n  }\n}\n\nfragment UserRow_user on User {\n  name\n  birthday\n}\n",
   "metadata": {},
   "fragment": {
     "kind": "Fragment",
@@ -71,20 +115,21 @@ return {
       {
         "kind": "LinkedField",
         "alias": null,
-        "name": "pokemons",
-        "storageKey": "pokemons(first:10)",
+        "name": "users",
+        "storageKey": "users(first:3)",
         "args": v0,
-        "concreteType": "Pokemon",
+        "concreteType": "User",
         "plural": true,
         "selections": [
           v1,
           {
             "kind": "FragmentSpread",
-            "name": "Pokemon_pokemon",
+            "name": "UserRow_user",
             "args": null
           }
         ]
-      }
+      },
+      v3
     ]
   },
   "operation": {
@@ -95,33 +140,28 @@ return {
       {
         "kind": "LinkedField",
         "alias": null,
-        "name": "pokemons",
-        "storageKey": "pokemons(first:10)",
+        "name": "users",
+        "storageKey": "users(first:3)",
         "args": v0,
-        "concreteType": "Pokemon",
+        "concreteType": "User",
         "plural": true,
         "selections": [
           v1,
+          v2,
           {
             "kind": "ScalarField",
             "alias": null,
-            "name": "number",
-            "args": null,
-            "storageKey": null
-          },
-          {
-            "kind": "ScalarField",
-            "alias": null,
-            "name": "name",
+            "name": "birthday",
             "args": null,
             "storageKey": null
           }
         ]
-      }
+      },
+      v3
     ]
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '3dc3bc0fc38c9408f42f9917f98e62ad';
+(node/*: any*/).hash = '9f4e8ba7105ab7b04b1a0664f887f756';
 module.exports = node;

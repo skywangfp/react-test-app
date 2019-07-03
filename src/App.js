@@ -1,23 +1,29 @@
 import React, { Component } from "react";
 import "./App.css";
 import graphql from "babel-plugin-relay/macro";
-import Pokemon from "./Pokemon";
+import UserRow from "./UserRow";
+import BookIndex from "./BookIndex";
 import { QueryRenderer } from "react-relay";
 
-import PokemonEnvironment from "./PokemonEnvironment.js";
+import Environment from "./Environment.js";
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <p className="App-intro">
+        <div className="App-intro">
           <QueryRenderer
-            environment={PokemonEnvironment}
+            environment={Environment}
             query={graphql`
               query AppQuery {
-                pokemons(first: 10) {
+                users(first: 3) {
                   id
-                  ...Pokemon_pokemon
+                  ...UserRow_user
+                }
+                books(name: "1") {
+                  id
+                  name
+                  price
                 }
               }
             `}
@@ -26,16 +32,21 @@ class App extends Component {
                 return "error";
               }
               if (props) {
-                return props.pokemons.map(pokemon => (
-                  <div key={pokemon.id}>
-                    <Pokemon pokemon={pokemon} />
+                console.info(props);
+                {/*return props.users.map(user => (
+                  <div key={user.id}>
+                    <UserRow user={user} />
                   </div>
-                ));
+                ));*/}
+
+                return (
+                  <BookIndex books={props.books} />
+                );
               }
               return "loading";
             }}
           />
-        </p>
+        </div>
       </div>
     );
   }
