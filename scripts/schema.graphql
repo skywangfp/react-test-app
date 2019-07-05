@@ -3,7 +3,10 @@ type Book {
   author: String!
 
   """comments"""
-  comments(pageSize: Int, pageNo: Int): [Comment!]
+  comments(bookId: ID, pageSize: Int, pageNo: Int): [Comment!]
+
+  """comments count"""
+  commentsCount: Int!
   createdAt: String!
   id: ID!
   name: String!
@@ -33,6 +36,12 @@ type Mutation {
   """update book info"""
   bookUpdate(id: ID!, name: String, author: String, price: Float): Book!
 
+  """create a comment"""
+  commentCreate(bookId: ID!, user: String!, content: String!): Comment!
+
+  """destroy comment"""
+  commentDestroy(id: ID!): String!
+
   """An example field added by the generator"""
   testField: String!
 }
@@ -41,8 +50,11 @@ type Query {
   """Find a book by ID"""
   book(id: ID!): Book
 
+  """book list"""
+  bookList: Book
+
   """search books"""
-  books(name: String, author: String, priceStart: Int, priceEnd: Float, pageSize: Int, pageNo: Int): [Book!]!
+  books(name: String, author: String, priceStart: Int, priceEnd: Float, pageSize: Int, pageNo: Int, bookId: ID): [Book!]!
 
   """find user by id"""
   user(id: ID!): User!

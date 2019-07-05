@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 87c074d1e6440a80b54607a3297f3f7f
+ * @relayHash 199c35f510da7be1d320a116f722ac70
  */
 
 /* eslint-disable */
@@ -35,7 +35,7 @@ query AppQuery {
     id
     ...UserRow_user
   }
-  books(name: "1") {
+  books(name: "$book_name") {
     id
     name
     price
@@ -75,12 +75,12 @@ v3 = {
   "kind": "LinkedField",
   "alias": null,
   "name": "books",
-  "storageKey": "books(name:\"1\")",
+  "storageKey": "books(name:\"$book_name\")",
   "args": [
     {
       "kind": "Literal",
       "name": "name",
-      "value": "1",
+      "value": "$book_name",
       "type": "String"
     }
   ],
@@ -103,7 +103,7 @@ return {
   "operationKind": "query",
   "name": "AppQuery",
   "id": null,
-  "text": "query AppQuery {\n  users(first: 3) {\n    id\n    ...UserRow_user\n  }\n  books(name: \"1\") {\n    id\n    name\n    price\n  }\n}\n\nfragment UserRow_user on User {\n  name\n  birthday\n}\n",
+  "text": "query AppQuery {\n  users(first: 3) {\n    id\n    ...UserRow_user\n  }\n  books(name: \"$book_name\") {\n    id\n    name\n    price\n  }\n}\n\nfragment UserRow_user on User {\n  name\n  birthday\n}\n",
   "metadata": {},
   "fragment": {
     "kind": "Fragment",
@@ -163,5 +163,5 @@ return {
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '9f4e8ba7105ab7b04b1a0664f887f756';
+(node/*: any*/).hash = '4e18b4ae5eaddab370a1f174f4e884ca';
 module.exports = node;

@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import graphql from "babel-plugin-relay/macro";
-import { createFragmentContainer } from "react-relay";
+// import { createFragmentContainer, commitMutation } from "react-relay";
+import { commitMutation } from "react-relay";
+
+import Environment from "./Environment";
+import Pager from "./Common/Pager"
+import Comments from "./Comments"
 
 class SearchBar extends Component {
   constructor(props) {
@@ -22,7 +27,7 @@ class SearchBar extends Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <label>搜索框：
+        <label>书名：
           <input value={this.props.value} onChange={this.handleChange} />
         </label>
         <input type="submit" value="提交" />
@@ -36,10 +41,40 @@ class BookRow extends Component {
     super(props);
 
     this.handleDelete = this.handleDelete.bind(this);
+    this.showComments = this.showComments.bind(this);
   }
 
   handleDelete(event) {
-    this.props.onDelete(event);
+    const bookid = event.target.value;
+    const mutation = graphql`
+      mutation BookIndexDestroyBookMutation($bookid: ID!) {
+        bookDestroy(id: $bookid)
+      }
+    `;
+    const variables = {
+      bookid: bookid
+    };
+
+    commitMutation(
+      Environment,
+      {
+        mutation,
+        variables,
+        onCompleted: (response, errors) => {
+          console.info(response);
+          console.log('Response received from server.');
+        },
+        onError: err => {
+          console.error(err);
+        }
+      },
+    );
+
+    this.props.onDelete(bookid);
+  }
+
+  showComments(event) {
+    this.props.showComments(event.target.value);
   }
 
   render() {
@@ -48,11 +83,12 @@ class BookRow extends Component {
       <tr key={book.id}>
         <td>{book.name}</td>
         <td>{book.author}</td>
-        <td>{book.price}</td>
-        <td>{book.comments}</td>
         <td>
           <button onClick={this.handleDelete} value={book.id} >
-            Delete
+            删除
+          </button>
+          <button onClick={this.showComments} value={book.id} >
+            详情
           </button>
         </td>
       </tr>
@@ -67,24 +103,25 @@ class BookTable extends Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
-  handleDelete(event) {
-    // alert('BookTable.deleteBook');
-    this.props.onDeleteBook(event);
+  handleDelete(bookid) {
+    this.props.onDeleteBook(bookid);
   }
 
   render() {
-    const books = this.props.books.map((book) =>
-      <BookRow key={book.id} book={book} onDelete={this.handleDelete} />
+    const books = (this.props.books || []).map((book) =>
+      <BookRow
+        key={book.id}
+        book={book}
+        showComments={this.props.showComments}
+        onDelete={this.handleDelete} />
     );
     return (
       <table>
         <thead>
           <tr>
-            <th>name</th>
-            <th>author</th>
-            <th>price</th>
-            <th>comments</th>
-            <th>operate</th>
+            <th>书名</th>
+            <th>作者</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
@@ -95,60 +132,29 @@ class BookTable extends Component {
   }
 }
 
+
 class BookIndex extends Component {
   constructor(props) {
     super(props);
-
-    const books = [
-      {id: 1, name: 'book1', author: 'author1', price: 123.45},
-      {id: 2, name: 'book2', author: 'author2', price: 123.45},
-      {id: 3, name: 'book3', author: 'author3', price: 123.45},
-      {id: 4, name: 'book4', author: 'author4', price: 123.45},
-      {id: 5, name: 'book5', author: 'author5', price: 123.45}
-    ];
-
-    this.state = {
-      value: '',
-      books: books
-    };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.deleteBook = this.deleteBook.bind(this);
     this.deleteRemoteBook = this.deleteRemoteBook.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   handleChange(value) {
-    this.setState({
-      value: value
-    });
+    this.props.onChange(value);
   }
 
   handleSubmit(event) {
-    alert('search: ' + this.state.value);
     event.preventDefault();
+    this.props.onSubmit(event);
   }
 
-  deleteBook(event) {
-    const book_id = parseInt(event.target.value);
-    const result = this.deleteRemoteBook(book_id);
-    if (!result) {
-      alert("delete remote book is error.")
-      return;
-    }
-
-    const books = this.state.books;
-    for (let i in books) {
-      if (books[i].id === book_id) {
-        books.splice(i, 1);
-        console.info("delete local book success.");
-        break;
-      }
-    }
-    this.setState({
-      books: books
-    });
-    alert("delete book[" + book_id + "] success.")
+  deleteBook(book_id) {
+    this.props.onDeleteBook(book_id);
   }
 
   deleteRemoteBook(book_id) {
@@ -156,11 +162,44 @@ class BookIndex extends Component {
     return true;
   }
 
+  changePage(page) {
+    this.props.onChangePage(page);
+  }
+
   render() {
+    let book = null;
+    let i = 0;
+    for (i in this.props.books) {
+      const tempBook = this.props.books[i];
+      if (tempBook.id == this.props.bookShowId) {
+        book = tempBook;
+        break;
+      }
+    }
     return (
       <div>
-        <SearchBar value={this.state.value} onChange={this.handleChange} onSubmit={this.handleSubmit} />
-        <BookTable books={this.props.books} onDeleteBook={this.deleteBook} />
+        <SearchBar value={this.props.value} onChange={this.handleChange} onSubmit={this.handleSubmit} />
+        <BookTable
+          books={this.props.books}
+          showComments={this.props.showComments}
+          onDeleteBook={this.deleteBook} />
+        <Pager
+          pageSize={this.props.pageSize}
+          pageNo={this.props.pageNo}
+          pageNoTemp={this.props.pageNoTemp}
+          pageMax={this.props.pageMax}
+          onChange={this.changePage}
+          onJumpTo={this.props.onJumpToBookPage} />
+        <Comments
+          book={book}
+          pageSize={this.props.commentPageSize}
+          pageNo={this.props.commentPageNo}
+          pageNoTemp={this.props.commentPageNoTemp}
+          onDelete={this.props.onDeleteBook}
+          onChangePage={this.props.onChangeCommentPage}
+          onJumpToPage={this.props.onJumpToCommentPage}
+          onCreateComment={this.props.onCreateComment}
+        />
       </div>
     );
   }

@@ -9,6 +9,7 @@ import Environment from "./Environment.js";
 
 class App extends Component {
   render() {
+    const book_name='2';
     return (
       <div className="App">
         <div className="App-intro">
@@ -20,7 +21,7 @@ class App extends Component {
                   id
                   ...UserRow_user
                 }
-                books(name: "1") {
+                books(name: "$book_name") {
                   id
                   name
                   price
@@ -33,11 +34,11 @@ class App extends Component {
               }
               if (props) {
                 console.info(props);
-                {/*return props.users.map(user => (
+                return props.users.map(user => (
                   <div key={user.id}>
                     <UserRow user={user} />
                   </div>
-                ));*/}
+                ));
 
                 return (
                   <BookIndex books={props.books} />
